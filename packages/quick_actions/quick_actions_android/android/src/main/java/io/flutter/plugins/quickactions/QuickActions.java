@@ -28,6 +28,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 final class QuickActions implements AndroidQuickActionsApi {
   protected static final String EXTRA_ACTION = "some unique action key";
@@ -47,8 +50,10 @@ final class QuickActions implements AndroidQuickActionsApi {
     return this.activity;
   }
 
-  // Returns true when running on a version of Android that supports quick actions.
-  // When this returns false, methods should silently no-op, per the documented behavior (see README.md).
+  // Returns true when running on a version of Android that supports quick
+  // actions.
+  // When this returns false, methods should silently no-op, per the documented
+  // behavior (see README.md).
   @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N_MR1)
   boolean isVersionAllowed() {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1;
@@ -57,15 +62,15 @@ final class QuickActions implements AndroidQuickActionsApi {
   @Override
   public void setShortcutItems(
       @NonNull List<ShortcutItemMessage> itemsList, @NonNull Result<Void> result) {
+        System.out.println("MD2222 - Helllooooo");
     if (!isVersionAllowed()) {
       result.success(null);
       return;
     }
+    System.out.println("MD2222 - 1111");
     List<ShortcutInfoCompat> shortcuts = shortcutItemMessageToShortcutInfo(itemsList);
     Executor uiThreadExecutor = new UiThreadExecutor();
-    ThreadPoolExecutor executor =
-        new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     executor.execute(
         () -> {
           boolean dynamicShortcutsSet = false;
@@ -78,7 +83,8 @@ final class QuickActions implements AndroidQuickActionsApi {
 
           final boolean didSucceed = dynamicShortcutsSet;
 
-          // TODO(camsim99): Investigate removing all of the executor logic in favor of background channels.
+          // TODO(camsim99): Investigate removing all of the executor logic in favor of
+          // background channels.
           uiThreadExecutor.execute(
               () -> {
                 if (didSucceed) {
@@ -129,26 +135,40 @@ final class QuickActions implements AndroidQuickActionsApi {
 
     for (ShortcutItemMessage shortcut : shortcuts) {
       final String icon = shortcut.getIcon();
+      final String base64Icon = shortcut.getBase64Icon();
       final String type = shortcut.getType();
       final String title = shortcut.getLocalizedTitle();
-      final ShortcutInfoCompat.Builder shortcutBuilder =
-          new ShortcutInfoCompat.Builder(context, type);
+      final ShortcutInfoCompat.Builder shortcutBuilder = new ShortcutInfoCompat.Builder(context, type);
 
-      final int resourceId = loadResourceId(context, icon);
       final Intent intent = getIntentToOpenMainActivity(type);
+      System.out.println("MD2222 - Helllooooo");
+      if (icon != null && !icon.isEmpty()) {
+        // Load normal icon if it exists
+        final int resourceId = loadResourceId(context, icon);
+        if (resourceId > 0) {
+          shortcutBuilder.setIcon(IconCompat.createWithResource(context, resourceId));
+        }
+      } else if (base64Icon != null && !base64Icon.isEmpty()) {
+        // Load base64 image if icon is null
 
-      if (resourceId > 0) {
-        shortcutBuilder.setIcon(IconCompat.createWithResource(context, resourceId));
+        byte[] decodedString = android.util.Base64.decode(base64Icon, android.util.Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        System.out.println("MD2222 - Hellloooo 3332 2 2 2 o");
+        if (bitmap != null) {
+          shortcutBuilder.setIcon(IconCompat.createWithBitmap(bitmap));
+        }
+
       }
 
-      final ShortcutInfoCompat shortcutInfo =
-          shortcutBuilder.setLongLabel(title).setShortLabel(title).setIntent(intent).build();
+      final ShortcutInfoCompat shortcutInfo = shortcutBuilder.setLongLabel(title).setShortLabel(title).setIntent(intent)
+          .build();
       shortcutInfos.add(shortcutInfo);
     }
     return shortcutInfos;
   }
 
-  // This method requires doing dynamic resource lookup, which is a discouraged API.
+  // This method requires doing dynamic resource lookup, which is a discouraged
+  // API.
   @SuppressWarnings("DiscouragedApi")
   private int loadResourceId(Context context, String icon) {
     if (icon == null) {
