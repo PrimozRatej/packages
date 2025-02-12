@@ -52,6 +52,7 @@ class QuickActionsAndroid extends QuickActionsPlatform {
       type: item.type,
       localizedTitle: item.localizedTitle,
       icon: item.icon,
+      base64Icon: item.base64Icon,
     );
   }
 }

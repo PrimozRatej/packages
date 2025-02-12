@@ -28,9 +28,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.Base64;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Base64;
 
 final class QuickActions implements AndroidQuickActionsApi {
   protected static final String EXTRA_ACTION = "some unique action key";
@@ -62,12 +62,10 @@ final class QuickActions implements AndroidQuickActionsApi {
   @Override
   public void setShortcutItems(
       @NonNull List<ShortcutItemMessage> itemsList, @NonNull Result<Void> result) {
-        System.out.println("MD2222 - Helllooooo");
     if (!isVersionAllowed()) {
       result.success(null);
       return;
     }
-    System.out.println("MD2222 - 1111");
     List<ShortcutInfoCompat> shortcuts = shortcutItemMessageToShortcutInfo(itemsList);
     Executor uiThreadExecutor = new UiThreadExecutor();
     ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
@@ -132,7 +130,6 @@ final class QuickActions implements AndroidQuickActionsApi {
   private List<ShortcutInfoCompat> shortcutItemMessageToShortcutInfo(
       @NonNull List<ShortcutItemMessage> shortcuts) {
     final List<ShortcutInfoCompat> shortcutInfos = new ArrayList<>();
-
     for (ShortcutItemMessage shortcut : shortcuts) {
       final String icon = shortcut.getIcon();
       final String base64Icon = shortcut.getBase64Icon();
@@ -141,19 +138,14 @@ final class QuickActions implements AndroidQuickActionsApi {
       final ShortcutInfoCompat.Builder shortcutBuilder = new ShortcutInfoCompat.Builder(context, type);
 
       final Intent intent = getIntentToOpenMainActivity(type);
-      System.out.println("MD2222 - Helllooooo");
       if (icon != null && !icon.isEmpty()) {
-        // Load normal icon if it exists
         final int resourceId = loadResourceId(context, icon);
         if (resourceId > 0) {
           shortcutBuilder.setIcon(IconCompat.createWithResource(context, resourceId));
         }
       } else if (base64Icon != null && !base64Icon.isEmpty()) {
-        // Load base64 image if icon is null
-
-        byte[] decodedString = android.util.Base64.decode(base64Icon, android.util.Base64.DEFAULT);
+        byte[] decodedString = Base64.getDecoder().decode(base64Icon);
         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        System.out.println("MD2222 - Hellloooo 3332 2 2 2 o");
         if (bitmap != null) {
           shortcutBuilder.setIcon(IconCompat.createWithBitmap(bitmap));
         }
