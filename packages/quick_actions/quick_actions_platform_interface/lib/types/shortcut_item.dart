@@ -13,6 +13,7 @@ class ShortcutItem {
     required this.localizedTitle,
     this.localizedSubtitle,
     this.icon,
+    this.base64Icon,
   });
 
   /// The identifier of this item; should be unique within the app.
@@ -29,4 +30,10 @@ class ShortcutItem {
   /// Name of native resource (xcassets etc; NOT a Flutter asset) to be
   /// displayed as the icon for this item.
   final String? icon;
+
+  /// Base64-encoded string representing the icon image.
+  ///
+  /// This is an alternative to [icon]. Only one of [icon] or [base64Icon]
+  /// should be provided.
+  final String? base64Icon;
 }

@@ -101,6 +101,17 @@ public class Messages {
       this.icon = setterArg;
     }
 
+    /** Base64-encoded string representing the icon image. */
+    private @Nullable String base64Icon;
+
+    public @Nullable String getBase64Icon() {
+      return base64Icon;
+    }
+
+    public void setBase64Icon(@Nullable String setterArg) {
+      this.base64Icon = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     ShortcutItemMessage() {}
 
@@ -127,21 +138,30 @@ public class Messages {
         return this;
       }
 
+      private @Nullable String base64Icon;
+
+      public @NonNull Builder setBase64Icon(@Nullable String setterArg) {
+        this.base64Icon = setterArg;
+        return this;
+      }
+
       public @NonNull ShortcutItemMessage build() {
         ShortcutItemMessage pigeonReturn = new ShortcutItemMessage();
         pigeonReturn.setType(type);
         pigeonReturn.setLocalizedTitle(localizedTitle);
         pigeonReturn.setIcon(icon);
+        pigeonReturn.setBase64Icon(base64Icon);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(3);
+      ArrayList<Object> toListResult = new ArrayList<Object>(4);
       toListResult.add(type);
       toListResult.add(localizedTitle);
       toListResult.add(icon);
+      toListResult.add(base64Icon);
       return toListResult;
     }
 
@@ -153,6 +173,8 @@ public class Messages {
       pigeonResult.setLocalizedTitle((String) localizedTitle);
       Object icon = list.get(2);
       pigeonResult.setIcon((String) icon);
+      Object base64Icon = list.get(3);
+      pigeonResult.setBase64Icon((String) base64Icon);
       return pigeonResult;
     }
   }

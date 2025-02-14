@@ -85,6 +85,8 @@ struct ShortcutItemMessage {
   var localizedSubtitle: String? = nil
   /// Name of native resource to be displayed as the icon for this item.
   var icon: String? = nil
+  /// Base64-encoded icon for this item.
+  var iconBase64: String? = nil
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ __pigeon_list: [Any?]) -> ShortcutItemMessage? {
@@ -92,12 +94,14 @@ struct ShortcutItemMessage {
     let localizedTitle = __pigeon_list[1] as! String
     let localizedSubtitle: String? = nilOrValue(__pigeon_list[2])
     let icon: String? = nilOrValue(__pigeon_list[3])
+    let iconBase64: String? = nilOrValue(__pigeon_list[4])
 
     return ShortcutItemMessage(
       type: type,
       localizedTitle: localizedTitle,
       localizedSubtitle: localizedSubtitle,
-      icon: icon
+      icon: icon,
+      iconBase64: iconBase64
     )
   }
   func toList() -> [Any?] {
@@ -106,6 +110,7 @@ struct ShortcutItemMessage {
       localizedTitle,
       localizedSubtitle,
       icon,
+      iconBase64,
     ]
   }
 }
