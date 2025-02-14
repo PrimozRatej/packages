@@ -17,6 +17,7 @@ class ShortcutItemMessage {
     this.localizedTitle,
     this.localizedSubtitle,
     this.icon,
+    this.base64Icon,
   );
 
   /// The identifier of this item; should be unique within the app.
@@ -30,6 +31,9 @@ class ShortcutItemMessage {
 
   /// Name of native resource to be displayed as the icon for this item.
   String? icon;
+
+  /// Base64-encoded icon for this item.
+  String? base64Icon;
 }
 
 @HostApi()

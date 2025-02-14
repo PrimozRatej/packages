@@ -36,6 +36,7 @@ class ShortcutItemMessage {
     required this.localizedTitle,
     this.localizedSubtitle,
     this.icon,
+    this.base64Icon,
   });
 
   /// The identifier of this item; should be unique within the app.
@@ -50,12 +51,19 @@ class ShortcutItemMessage {
   /// Name of native resource to be displayed as the icon for this item.
   String? icon;
 
+  /// Base64-encoded string representing the icon image.
+  ///
+  /// This is an alternative to [icon]. Only one of [icon] or [base64Icon]
+  /// should be provided.
+  final String? base64Icon;
+
   Object encode() {
     return <Object?>[
       type,
       localizedTitle,
       localizedSubtitle,
       icon,
+      base64Icon,
     ];
   }
 
@@ -66,6 +74,7 @@ class ShortcutItemMessage {
       localizedTitle: result[1]! as String,
       localizedSubtitle: result[2] as String?,
       icon: result[3] as String?,
+      base64Icon: result[4] as String?,
     );
   }
 }

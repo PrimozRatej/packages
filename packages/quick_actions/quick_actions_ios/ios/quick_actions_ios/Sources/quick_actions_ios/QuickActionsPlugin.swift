@@ -86,20 +86,48 @@ public final class QuickActionsPlugin: NSObject, FlutterPlugin, IOSQuickActionsA
 
   private func convertShortcutItemMessageToUIApplicationShortcutItem(
     with shortcut: ShortcutItemMessage
-  )
-    -> UIApplicationShortcutItem?
-  {
+  ) -> UIApplicationShortcutItem? {
+      let icon: UIApplicationShortcutIcon?
 
-    let icon = (shortcut.icon).map {
-      UIApplicationShortcutIcon(templateImageName: $0)
-    }
+      print(shortcut.iconBase64 ?? "Image is null")
+      if let base64Icon = shortcut.iconBase64,
+        let imageData = Data(base64Encoded: base64Icon),
+        let image = UIImage(data: imageData) {
+          // Save the image to the app's temporary directory
+          let tempDirectory = NSTemporaryDirectory()
+          let imageName = "shortcut_icon_\(UUID().uuidString).png"
+          let imagePath = (tempDirectory as NSString).appendingPathComponent(imageName)
+          if let pngData = image.pngData() {
+              do {
+                  try pngData.write(to: URL(fileURLWithPath: imagePath))
+                  // Use the saved image as a template icon
+                  // USe system for now the UIApplicationShortcutIcon do not support custom icons
+                  icon = UIApplicationShortcutIcon(systemImageName: "arrow.right")
+              } catch {
+                  print("Error saving base64 icon to disk: \(error)")
+                  icon = nil
+              }
+          } else {
+              print("Error converting UIImage to PNG data.")
+              icon = nil
+          }
+      } else if let templateImageName = shortcut.icon {
+          // Use the provided template image name
+          icon = UIApplicationShortcutIcon(templateImageName: templateImageName)
+      } else {
+          // No valid icon provided
+          print("Warning: No icon found for shortcut item: \(shortcut.type)")
+          icon = nil
+      }
 
-    // type and localizedTitle are required.
-    return UIApplicationShortcutItem(
-      type: shortcut.type,
-      localizedTitle: shortcut.localizedTitle,
-      localizedSubtitle: shortcut.localizedSubtitle,
-      icon: icon,
-      userInfo: nil)
+      // Return the UIApplicationShortcutItem with the created icon
+      return UIApplicationShortcutItem(
+          type: shortcut.type,
+          localizedTitle: shortcut.localizedTitle,
+          localizedSubtitle: shortcut.localizedSubtitle,
+          icon: icon,
+          userInfo: nil
+      )
   }
+
 }
